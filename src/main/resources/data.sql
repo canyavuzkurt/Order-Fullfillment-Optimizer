@@ -7,5 +7,3 @@ insert into stock (product_id, amount) VALUES (2, 1);
 insert into stock (product_id, amount) VALUES (1, 5);
 insert into stock (product_id, amount) VALUES (3, 6);
 insert into stock (product_id, amount) VALUES (2, 3);
-
-insert into location
