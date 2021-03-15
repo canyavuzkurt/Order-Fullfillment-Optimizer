@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Products</title>
+    <link th:href="@{/css/table.css}" rel="stylesheet"/>
+</head>
+<body>
+<h1 th:text="${name}"/>
+
+<tbody>
+<div th:if="${ not#lists.isEmpty(products)}">
+    <table class="fl-table">
+        <thead>
+        <tr>
+            <th>Product Name</th>
+            <th>Total Amount</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="product : ${products}">
+            <td th:text="${product.name}"></td>
+            <td th:text="${product.getTotalAmount()}"></td>
+        </tr>
+        </tbody>
+        <table>
+</div>
+<tr th:each="prod: ${products}">
+    <td th:text="${prod.getName()}">Oranges</td>
+    <td th:text="${prod.getTotalAmount()}">Oranges</td>
+</tr>
+</tbody>
+</body>
+</html>
