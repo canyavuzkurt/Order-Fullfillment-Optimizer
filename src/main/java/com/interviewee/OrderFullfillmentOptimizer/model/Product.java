@@ -15,7 +15,7 @@ public class Product extends BaseEntity{
     @Column(unique = true)
     private String name;
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "product")
     private Set<Stock> stocks;
 
     public Product(String name) {
@@ -43,7 +43,7 @@ public class Product extends BaseEntity{
 
         Stock stock = getStockOf(product);
         if (stock == null)
-            getStocks().add(new Stock(product, amount));
+            getStocks().add(new Stock(product, amount, null));
         else
             stock.increase(amount);
 
@@ -77,5 +77,11 @@ public class Product extends BaseEntity{
             return optionalStock.get();
         else
             return null;
+    }
+
+    @Override
+    public String toString() {
+
+        return getName();
     }
 }

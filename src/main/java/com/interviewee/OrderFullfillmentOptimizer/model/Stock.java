@@ -10,6 +10,7 @@ import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -27,6 +28,10 @@ public class Stock extends BaseEntity{
     @Column
     private Long amount;
 
+    @ManyToOne
+    @JoinColumn(name = "location_id", nullable = true)
+    private Location location;
+
     public void increase(@NotNull Long amount) {
 
         setAmount(getAmount() + amount);
@@ -35,5 +40,11 @@ public class Stock extends BaseEntity{
     public void decrease(@NotNull Long amount) {
 
         setAmount(getAmount() + amount);
+    }
+
+    @Override
+    public String toString() {
+
+        return "Stock{" + "product=" + product + ", amount=" + amount + '}';
     }
 }
