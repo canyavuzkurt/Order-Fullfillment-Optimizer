@@ -1,10 +1,6 @@
 package com.interviewee.OrderFullfillmentOptimizer.model;
 
-import com.sun.istack.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,9 +10,12 @@ import javax.validation.constraints.NotBlank;
 import java.util.Set;
 
 @Entity
-@Getter @Setter
-@AllArgsConstructor @NoArgsConstructor
-public class Location extends BaseEntity{
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
+public class Location extends BaseEntity {
 
     @Column(unique = true)
     @NotBlank
@@ -25,12 +24,17 @@ public class Location extends BaseEntity{
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "location")
     private Set<Stock> stocks;
 
+    public Location(@NotBlank String alias) {
+
+        this.alias = alias;
+    }
+
     public String getStockAvailability() {
 
         String result = "";
         for (Stock stock : stocks) {
 
-            if (stock != null ){
+            if (stock != null) {
 
                 result += stock.getProduct().getName() + "(" + stock.getAmount() + ") ";
             }

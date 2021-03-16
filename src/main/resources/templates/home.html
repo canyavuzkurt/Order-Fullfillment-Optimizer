@@ -7,46 +7,64 @@
 </head>
 <body>
 
-<h2>
-    Products
-</h2>
-<tbody>
-<div th:if="${ not#lists.isEmpty(products)}">
-    <table class="fl-table">
-        <thead>
-        <tr>
-            <th>Product Name</th>
-            <th>Total Amount</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="product : ${products}">
-            <td th:text="${product.getName()}"></td>
-            <td th:text="${product.getTotalAmount()}"></td>
-        </tr>
-        </tbody>
-        <table>
-</div>
+<div class="table-wrapper">
+    <h2>
+        Products
+    </h2>
+    <div th:if="${ not#lists.isEmpty(products)}">
+        <table class="fl-table">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Product Name</th>
+                <th>Total Amount</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="product : ${products}">
+                <td th:text="${product.getId()}"></td>
+                <td th:text="${product.getName()}"></td>
+                <td th:text="${product.getTotalAmount()}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 
-<h2>
-    Product Availability
-</h2>
-<div th:if="${ not#lists.isEmpty(locations)}">
-    <table class="fl-table">
-        <thead>
-        <tr>
-            <th>Location Name</th>
-            <th>Stock Availability</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="location : ${locations}">
-            <td th:text="${location.getAlias()}"></td>
-            <td th:text="${#strings.listJoin(location.getStockAvailability(), ', ')}"></td>
-        </tr>
-        </tbody>
-        <table>
+    <h2>
+        Product Availability
+    </h2>
+    <div th:if="${ not#lists.isEmpty(locations)}">
+        <table class="fl-table">
+            <thead>
+            <tr>
+                <th>Location Name</th>
+                <th>Stock Availability</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="location : ${locations}">
+                <td th:text="${location.getAlias()}"></td>
+                <td th:text="${#strings.listJoin(location.getStockAvailability(), ', ')}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <h2>
+        Place Your Order
+    </h2>
+    <br>
+    <!-- Button -->
+    <div class="myDiv">
+        <form action="#" th:action="@{/order}" th:object="${order}" method="post" class="valueForm">
+            <input class="inputBox" type="text" id="order" name="order" placeholder="Id Amount Id Amount ... ">
+            <br><br>
+            <input class="submitButton" type="submit" value="Submit">
+        </form>
+    </div>
+    <br><br>
+    <!--    <div  th:if="${ not fullfilledOrders == null}">-->
+    <!--        <p style="align-items: center;" class="fl-table" th:text="${fullfilledOrders}"/>-->
+    <!--    </div>-->
 </div>
-</tbody>
 </body>
 </html>

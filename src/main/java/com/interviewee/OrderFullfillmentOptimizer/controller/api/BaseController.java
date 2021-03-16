@@ -1,4 +1,4 @@
-package com.interviewee.OrderFullfillmentOptimizer.controller;
+package com.interviewee.OrderFullfillmentOptimizer.controller.api;
 
 
 import com.interviewee.OrderFullfillmentOptimizer.model.BaseEntity;

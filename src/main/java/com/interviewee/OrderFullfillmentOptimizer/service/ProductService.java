@@ -5,6 +5,8 @@ import com.interviewee.OrderFullfillmentOptimizer.repository.BaseRepository;
 import com.interviewee.OrderFullfillmentOptimizer.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class ProductService extends BaseService<Product>{
 
@@ -14,5 +16,12 @@ public class ProductService extends BaseService<Product>{
 
         super("Product", repository);
         productRepository = repository;
+    }
+
+
+
+    public List<Product> findByName(String name) {
+
+        return productRepository.findByName(name);
     }
 }

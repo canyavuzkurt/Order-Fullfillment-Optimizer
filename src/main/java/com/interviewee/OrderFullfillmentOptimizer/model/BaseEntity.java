@@ -1,5 +1,6 @@
 package com.interviewee.OrderFullfillmentOptimizer.model;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
