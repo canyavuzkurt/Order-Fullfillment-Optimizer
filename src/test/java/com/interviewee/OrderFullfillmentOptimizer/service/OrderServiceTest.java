@@ -64,7 +64,7 @@ class OrderServiceTest {
         location1.setStocks(new HashSet<>(Arrays.asList(stock1, stock4)));
         location2.setStocks(new HashSet<>(Arrays.asList(stock2, stock3)));
 
-        Order order1 = new Order(0L, 4L);
+        Order order1 = new Order(product1, 4L);
 
         FullfilledOrder result1 = new FullfilledOrder(order1, Arrays.asList(location1));
 
@@ -102,8 +102,8 @@ class OrderServiceTest {
         location1.setStocks(new HashSet<>(Arrays.asList(stock1, stock4)));
         location2.setStocks(new HashSet<>(Arrays.asList(stock2, stock3)));
 
-        Order order1 = new Order(0L, 4L);
-        Order order2 = new Order(1L, 2L);
+        Order order1 = new Order(product1, 4L);
+        Order order2 = new Order(product2, 2L);
 
         FullfilledOrder result1 = new FullfilledOrder(order1, Arrays.asList(location2));
         FullfilledOrder result2 = new FullfilledOrder(order2, Arrays.asList(location2));
@@ -143,7 +143,7 @@ class OrderServiceTest {
         location1.setStocks(new HashSet<>(Arrays.asList(stock1, stock4)));
         location2.setStocks(new HashSet<>(Arrays.asList(stock2, stock3)));
 
-        Order order1 = new Order(0L, 9L);
+        Order order1 = new Order(product1, 9L);
         FullfilledOrder result1 = new FullfilledOrder(order1, Arrays.asList(location1, location2));
 
         given(productService.findById(0L)).willReturn(product1);
@@ -180,8 +180,8 @@ class OrderServiceTest {
         location1.setStocks(new HashSet<>(Arrays.asList(stock1, stock4)));
         location2.setStocks(new HashSet<>(Arrays.asList(stock2, stock3)));
 
-        Order order1 = new Order(0L, 5L);
-        Order order2 = new Order(2L, 7L);
+        Order order1 = new Order(product1, 5L);
+        Order order2 = new Order(product3, 7L);
 
         FullfilledOrder result1 = new FullfilledOrder(order1, Arrays.asList(location2));
         FullfilledOrder result2 = new FullfilledOrder(order2, Arrays.asList(location1));
@@ -221,8 +221,8 @@ class OrderServiceTest {
         location1.setStocks(new HashSet<>(Arrays.asList(stock1, stock4)));
         location2.setStocks(new HashSet<>(Arrays.asList(stock2, stock3)));
 
-        Order order1 = new Order(0L, 10L);
-        Order order2 = new Order(2L, 7L);
+        Order order1 = new Order(product1, 10L);
+        Order order2 = new Order(product3, 7L);
 
         FullfilledOrder result1 = new FullfilledOrder(order1, Arrays.asList(location2));
         FullfilledOrder result2 = new FullfilledOrder(order2, Arrays.asList(location1));

@@ -6,6 +6,7 @@ import com.interviewee.OrderFullfillmentOptimizer.model.Product;
 import com.interviewee.OrderFullfillmentOptimizer.payload.request.Order;
 import com.interviewee.OrderFullfillmentOptimizer.payload.request.OrdersWrapper;
 import com.interviewee.OrderFullfillmentOptimizer.payload.response.FullfilledOrder;
+import com.interviewee.OrderFullfillmentOptimizer.payload.response.FullfilledOrders;
 import com.interviewee.OrderFullfillmentOptimizer.service.LocationService;
 import com.interviewee.OrderFullfillmentOptimizer.service.OrderService;
 import com.interviewee.OrderFullfillmentOptimizer.service.ProductService;
@@ -47,12 +48,12 @@ public class HomeController {
         model.addAttribute("locations", locs);
 
 
-        List<FullfilledOrder> fullfilledOrders = new ArrayList<>();
+        FullfilledOrders fullfilledOrders = null;
         String error = null;
         if (ordersWrapper.getOrders() != null){
             try {
 
-                fullfilledOrders = orderService.fullfillOrders(ordersWrapper.getOrders());
+                fullfilledOrders = new FullfilledOrders(orderService.fullfillOrders(ordersWrapper.getOrders()));
             }
             catch (NotEnoughStockException e) {
 
@@ -65,7 +66,7 @@ public class HomeController {
         ArrayList<Order> orders = new ArrayList<>();
         for (Product product : all) {
 
-            orders.add(new Order(product.getId(), 0L));
+            orders.add(new Order(product, 0L));
         }
         model.addAttribute("ordersWrapper", new OrdersWrapper(orders));
         model.addAttribute("fullfilledOrders", fullfilledOrders);

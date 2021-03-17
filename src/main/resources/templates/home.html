@@ -52,6 +52,8 @@
                                placeholder="0"></td>
                     <input class="inputBox" type="hidden" th:field="*{orders[__${rowStat.index}__].productId}"
                            th:value="*{orders[__${rowStat.index}__].productId}">
+                    <input class="inputBox" type="hidden" th:field="*{orders[__${rowStat.index}__].productName}"
+                           th:value="*{orders[__${rowStat.index}__].productName}">
                 </tr>
                 </tbody>
             </table>
@@ -59,9 +61,9 @@
         </form>
     </div>
 
-    <h3 th:if="${ error != null}" th:text="${error}"></h3>
+    <h3 th:if="${error != null}" th:text="${error}"></h3>
 
-    <div th:if="${ not#lists.isEmpty(fullfilledOrders)}">
+    <div th:if="${fullfilledOrders != null}">
 
         <h2>
             Fullfilled Order
@@ -75,14 +77,19 @@
             </tr>
             </thead>
             <tbody>
-            <tr th:each="fullfilledOrder : ${fullfilledOrders}">
+            <tr th:each="fullfilledOrder : ${fullfilledOrders.getFullfilledOrderList()}">
                 <td th:text="${products.get(fullfilledOrder.getOrder().getProductId()-1).getName()}"></td>
                 <td th:text="${fullfilledOrder.getOrder().getAmount()}"></td>
                 <td th:text="${fullfilledOrder.locationAliases()}"></td>
             </tr>
             </tbody>
         </table>
+
+        <h4 th:text="${fullfilledOrders.getMessage()}"></h4>
     </div>
+
+
+
 
 </div>
 </body>

@@ -6,6 +6,7 @@ import com.interviewee.OrderFullfillmentOptimizer.model.Product;
 import com.interviewee.OrderFullfillmentOptimizer.model.Stock;
 import com.interviewee.OrderFullfillmentOptimizer.payload.request.Order;
 import com.interviewee.OrderFullfillmentOptimizer.payload.response.FullfilledOrder;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,6 +14,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class OrderService {
 
     final LocationService locationService;
@@ -25,40 +27,17 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
+    // It is an O(n^2) algorithm.
+    // Order is in terms of a product, a list of orders contains request for multiple products.
     public List<FullfilledOrder> fullfillOrders(List<Order> orders) {
 
         orders.removeIf(e -> e.getAmount() == 0);
 
-        Location singleLocation = findSingleLocationForFulfillment(orders);
-
-        List<FullfilledOrder> fullfilledOrders = new ArrayList<>();
-
-        // Order can be fullfilled from single location. Rule1
-        if (singleLocation != null) {
-            Set<Stock> stocks = singleLocation.getStocks();
-            for (Order order : orders) {
-
-                Product orderProduct = getProductFromOrder(order);
-                fullfilledOrders.add(
-                        new FullfilledOrder(order, Arrays.asList(stocks.stream()
-                                        .filter(stock -> stock.getProduct().equals(orderProduct))
-                                        .map(stock -> stock.getLocation())
-                                        .findFirst().get())));
-            }
-        }
-        // Order cannot be fullfilled from single location. Rule2
-        else {
-            for (Order order : orders)
-                fullfilledOrders.add(fullfillOrder(order));
-        }
-
-        return fullfilledOrders;
-    }
-
-    private Location findSingleLocationForFulfillment(List<Order> orders) {
-
-        boolean first = true;
-        List<Location> commonLocations = new ArrayList<>();
+        // List of Stocks that can fulfill the order by themselves for optimization.
+        List<List<Stock>> singleFullfillStocksPerOrder = new ArrayList<>();
+        // List of hashset of locations that the above list of stocks contains.
+        // This is done to reduce the time complexity.
+        List<HashSet<Location>> singleFullfillLocationsPerOrder = new ArrayList<>();
 
         for (Order order : orders) {
 
@@ -69,35 +48,79 @@ public class OrderService {
                     .sorted(Comparator.comparing(Stock::getAmount).reversed())
                     .collect(Collectors.toList());
 
-            List<Location> singleFullfillLocations = singleFullfillStocks.stream()
+            singleFullfillStocksPerOrder.add(singleFullfillStocks);
+
+            HashSet<Location> singleFullfillLocations = singleFullfillStocks.stream()
                     .map(stock -> stock.getLocation()).collect(
-                    Collectors.toList());
+                            Collectors.toCollection(HashSet::new));
 
-            if (first && !singleFullfillStocks.isEmpty()){
+            singleFullfillLocationsPerOrder.add(singleFullfillLocations);
+        }
 
-                commonLocations.addAll(singleFullfillLocations);
-                first = false;
-            }
-            else if (!singleFullfillStocks.isEmpty() && !commonLocations.isEmpty()){
+        List<FullfilledOrder> fullfilledOrders = fullfillOrdersOptimally(orders, singleFullfillStocksPerOrder,
+                singleFullfillLocationsPerOrder);
 
-                List<Location> newLocations = new ArrayList<>();
+        return fullfilledOrders;
 
-                for (Location loc : singleFullfillLocations) {
-                    if (commonLocations.contains(loc))
-                        newLocations.add(loc);
+    }
+
+    private List<FullfilledOrder> fullfillOrdersOptimally(List<Order> orders,
+            List<List<Stock>> singleFullfillStocksPerOrder, List<HashSet<Location>> singleFullfillLocationsPerOrder) {
+
+        List<FullfilledOrder> fullfilledOrders = new ArrayList<>();
+        List<Location> locationsOrderedByFrequency = getLocationsOrderedByFrequency(singleFullfillStocksPerOrder);
+        for (int i = 0; i < orders.size(); i++) {
+
+            HashSet<Location> singleFullfilmentLocations = singleFullfillLocationsPerOrder.get(i);
+
+            Location optimumLocation = null;
+            for (Location loc : locationsOrderedByFrequency) {
+
+                // Hashset Contains time complexity O(1)
+                if (singleFullfilmentLocations.contains(loc)){
+
+                    optimumLocation = loc;
+                    break;
                 }
-
-                commonLocations = newLocations;
             }
-            else {
-                commonLocations.clear();
-                break;
+
+            // If an order for a product can be fulfilled from a single location.
+            if (optimumLocation != null) {
+
+                fullfilledOrders.add(new FullfilledOrder(orders.get(i), Arrays.asList(optimumLocation)));
+            }
+            // If an order for a product can not be fulfilled from a single locations.
+            // For example there is 1 oven at loc1 and 2 oven at loc3,
+            // for the Order of 3 Ovens this can be fulfilled from loc1 and 2 together.
+            else
+                fullfilledOrders.add(fullfillOrderFromMultipleLocations(orders.get(i)));
+        }
+        return fullfilledOrders;
+    }
+
+    private List<Location> getLocationsOrderedByFrequency(List<List<Stock>> singleFullfillStocksPerOrder) {
+
+        HashMap<Location, Long> locationFrequency = new HashMap<>();
+
+        for (List<Stock> singleFullfillStocks : singleFullfillStocksPerOrder) {
+
+            for (Stock singleFullfillStock: singleFullfillStocks) {
+
+                Location loc = singleFullfillStock.getLocation();
+                Long frequency = locationFrequency.get(loc);
+                if (frequency == null)
+                    locationFrequency.put(loc, 1L);
+                else
+                    locationFrequency.put(loc, frequency + 1L);
             }
         }
-        if (commonLocations.size()>0)
-            return commonLocations.get(0);
-        else
-            return null;
+
+        ArrayList<Location> locations = new ArrayList<>(locationFrequency.keySet());
+        List<Location> locationsOrderedByFrequency = locations.stream()
+                .sorted(Comparator.comparing(locationFrequency::get).reversed())
+                .collect(Collectors.toList());
+
+        return locationsOrderedByFrequency;
     }
 
     private Product getProductFromOrder(Order order) {
@@ -105,7 +128,7 @@ public class OrderService {
         return productService.findById(order.getProductId());
     }
 
-    private FullfilledOrder fullfillOrder(Order order) {
+    private FullfilledOrder fullfillOrderFromMultipleLocations(Order order) {
 
         Product product = getProductFromOrder(order);
         Set<Stock> stocks = product.getStocks();
