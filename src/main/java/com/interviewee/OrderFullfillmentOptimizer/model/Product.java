@@ -16,6 +16,7 @@ public class Product extends BaseEntity{
     private String name;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "product")
+    @OrderBy("amount desc")
     private Set<Stock> stocks;
 
     public Product(String name) {

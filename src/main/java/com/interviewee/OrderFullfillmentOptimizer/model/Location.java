@@ -2,10 +2,7 @@ package com.interviewee.OrderFullfillmentOptimizer.model;
 
 import lombok.*;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.util.Set;
 
@@ -22,6 +19,7 @@ public class Location extends BaseEntity {
     private String alias;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "location")
+    @OrderBy("amount desc")
     private Set<Stock> stocks;
 
     public Location(@NotBlank String alias) {

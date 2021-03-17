@@ -64,8 +64,10 @@ public class OrderService {
 
             Product product = productService.findById(order.getProductId());
 
-            Set<Stock> singleFullfillStocks = product.getStocks().stream()
-                    .filter(stock -> stock.getAmount() >= order.getAmount()).collect(Collectors.toSet());
+            List<Stock> singleFullfillStocks = product.getStocks().stream()
+                    .filter(stock -> stock.getAmount() >= order.getAmount())
+                    .sorted(Comparator.comparing(Stock::getAmount).reversed())
+                    .collect(Collectors.toList());
 
             List<Location> singleFullfillLocations = singleFullfillStocks.stream()
                     .map(stock -> stock.getLocation()).collect(
