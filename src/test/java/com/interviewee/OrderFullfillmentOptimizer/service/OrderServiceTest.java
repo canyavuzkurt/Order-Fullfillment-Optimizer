@@ -165,20 +165,23 @@ class OrderServiceTest {
 
         Location location1 = new Location("loc1");
         Location location2 = new Location("loc2");
+        Location location3 = new Location("loc3");
 
         Stock stock1 = new Stock(product1, 4L, location1);
         Stock stock2 = new Stock(product1, 5L, location2);
         Stock stock3 = new Stock(product2, 2L, location2);
         Stock stock4 = new Stock(product3, 7L, location1);
+        Stock stock5 = new Stock(product3, 10L, location3);
 
         product1.setStocks(new HashSet<>(Arrays.asList(stock1, stock2)));
         product2.setStocks(new HashSet<>(Arrays.asList(stock3)));
-        product3.setStocks(new HashSet<>(Arrays.asList(stock4)));
+        product3.setStocks(new HashSet<>(Arrays.asList(stock4, stock5)));
 
         assertThat(stock1.getProduct()).isEqualTo(product1);
 
         location1.setStocks(new HashSet<>(Arrays.asList(stock1, stock4)));
-        location2.setStocks(new HashSet<>(Arrays.asList(stock2, stock3)));
+        location2.setStocks(new HashSet<>(Arrays.asList(stock2, stock3, stock5)));
+        location3.setStocks(new HashSet<>(Arrays.asList(stock5)));
 
         Order order1 = new Order(product1, 5L);
         Order order2 = new Order(product3, 7L);
