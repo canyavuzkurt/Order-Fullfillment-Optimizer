@@ -6,8 +6,6 @@ import com.interviewee.OrderFullfillmentOptimizer.model.Product;
 import com.interviewee.OrderFullfillmentOptimizer.model.Stock;
 import com.interviewee.OrderFullfillmentOptimizer.payload.request.Order;
 import com.interviewee.OrderFullfillmentOptimizer.payload.response.FullfilledOrder;
-import org.aspectj.weaver.ast.Or;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,17 +24,41 @@ public class OrderService {
         this.productService = productService;
     }
 
-    public List<FullfilledOrder> fullfillOrders(String order) {
-
-        return fullfillOrders(parseOrder(order));
-    }
-
     @Transactional(readOnly = true)
     public List<FullfilledOrder> fullfillOrders(List<Order> orders) {
 
+        orders.removeIf(e -> e.getAmount() == 0);
+
+        Location singleLocation = findSingleLocationForFulfillment(orders);
+
+        List<FullfilledOrder> fullfilledOrders = new ArrayList<>();
+
+        // Order can be fullfilled from single location. Rule1
+        if (singleLocation != null) {
+            Set<Stock> stocks = singleLocation.getStocks();
+            for (Order order : orders) {
+
+                Product orderProduct = getProductFromOrder(order);
+                fullfilledOrders.add(
+                        new FullfilledOrder(order, Arrays.asList(stocks.stream()
+                                        .filter(stock -> stock.getProduct().equals(orderProduct))
+                                        .map(stock -> stock.getLocation())
+                                        .findFirst().get())));
+            }
+        }
+        // Order cannot be fullfilled from single location. Rule2
+        else {
+            for (Order order : orders)
+                fullfilledOrders.add(fullfillOrder(order));
+        }
+
+        return fullfilledOrders;
+    }
+
+    private Location findSingleLocationForFulfillment(List<Order> orders) {
+
         boolean first = true;
         List<Location> commonLocations = new ArrayList<>();
-        List<Set<Stock>> possibleStocksPerProduct = new ArrayList<>();
 
         for (Order order : orders) {
 
@@ -48,6 +70,7 @@ public class OrderService {
             List<Location> singleFullfillLocations = singleFullfillStocks.stream()
                     .map(stock -> stock.getLocation()).collect(
                     Collectors.toList());
+
             if (first && !singleFullfillStocks.isEmpty()){
 
                 commonLocations.addAll(singleFullfillLocations);
@@ -64,56 +87,15 @@ public class OrderService {
 
                 commonLocations = newLocations;
             }
-            else
-                possibleStocksPerProduct.add(product.getStocks());
-        }
-
-        List<FullfilledOrder> fullfilledOrders = new ArrayList<>();
-
-        // Order can be fullfilled from single location.
-        if (!commonLocations.isEmpty()) {
-            Location location = commonLocations.get(0);
-            Set<Stock> stocks = location.getStocks();
-            for (Order order : orders) {
-
-                Product orderProduct = getProductFromOrder(order);
-                fullfilledOrders.add(
-                        new FullfilledOrder(order, Arrays.asList(stocks.stream()
-                                        .filter(stock -> stock.getProduct().equals(orderProduct))
-                                        .map(stock -> stock.getLocation())
-                                        .findFirst().get())));
+            else {
+                commonLocations.clear();
+                break;
             }
         }
-        else {
-
-            for (Order order : orders)
-                fullfilledOrders.add(fullfillOrder(order));
-        }
-
-        return fullfilledOrders;
-    }
-
-    public List<Order> parseOrder(String order) {
-
-        String[] splitOrder = order.split(" ");
-        List<Order> orders = new ArrayList<>();
-        for (int i = 0; i < splitOrder.length; i+=2) {
-
-            orders.add(new Order(Long.valueOf(splitOrder[i]), Long.valueOf(splitOrder[i+1])));
-        }
-
-        return orders;
-    }
-
-    private List<Product> fetchProducts(List<Order> orders) {
-
-        List<Product> products = new ArrayList<>();
-        for (Order order : orders) {
-
-            products.add(getProductFromOrder(order));
-        }
-
-        return products;
+        if (commonLocations.size()>0)
+            return commonLocations.get(0);
+        else
+            return null;
     }
 
     private Product getProductFromOrder(Order order) {
@@ -141,8 +123,10 @@ public class OrderService {
                 fullfilledQuantity += stock.getAmount();
                 fullfillmentLocations.add(stock.getLocation());
             }
-            else
+            else {
                 fullfilledQuantity += order.getAmount() - fullfilledQuantity;
+                fullfillmentLocations.add(stock.getLocation());
+            }
             i++;
         }
 

@@ -9,28 +9,6 @@
 
 <div class="table-wrapper">
     <h2>
-        Products
-    </h2>
-    <div th:if="${ not#lists.isEmpty(products)}">
-        <table class="fl-table">
-            <thead>
-            <tr>
-                <th>ID</th>
-                <th>Product Name</th>
-                <th>Total Amount</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="product : ${products}">
-                <td th:text="${product.getId()}"></td>
-                <td th:text="${product.getName()}"></td>
-                <td th:text="${product.getTotalAmount()}"></td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <h2>
         Product Availability
     </h2>
     <div th:if="${ not#lists.isEmpty(locations)}">
@@ -52,19 +30,60 @@
     <h2>
         Place Your Order
     </h2>
-    <br>
     <!-- Button -->
     <div class="myDiv">
-        <form action="#" th:action="@{/order}" th:object="${order}" method="post" class="valueForm">
-            <input class="inputBox" type="text" id="order" name="order" placeholder="Id Amount Id Amount ... ">
-            <br><br>
+        <!--        <table class="fl-table">-->
+
+        <form action="#" th:action="@{/order}" th:object="${ordersWrapper}" method="post" class="valueForm">
+
+            <table class="fl-table">
+                <thead>
+                <tr>
+                    <th>Product Name</th>
+                    <th>Total Amount</th>
+                    <th>Quantity To Order</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="workRow, rowStat : *{orders}">
+                    <td th:text="${ products.get(ordersWrapper.orders[__${rowStat.index}__].getProductId()-1).getName()}"></td>
+                    <td th:text="${products.get(ordersWrapper.orders[__${rowStat.index}__].getProductId()-1).getTotalAmount()}"></td>
+                    <td><input class="inputBox" type="text" th:field="*{orders[__${rowStat.index}__].amount}"
+                               placeholder="0"></td>
+                    <input class="inputBox" type="hidden" th:field="*{orders[__${rowStat.index}__].productId}"
+                           th:value="*{orders[__${rowStat.index}__].productId}">
+                </tr>
+                </tbody>
+            </table>
             <input class="submitButton" type="submit" value="Submit">
         </form>
     </div>
-    <br><br>
-    <!--    <div  th:if="${ not fullfilledOrders == null}">-->
-    <!--        <p style="align-items: center;" class="fl-table" th:text="${fullfilledOrders}"/>-->
-    <!--    </div>-->
+
+    <h3 th:if="${ error != null}" th:text="${error}"></h3>
+
+    <div th:if="${ not#lists.isEmpty(fullfilledOrders)}">
+
+        <h2>
+            Fullfilled Order
+        </h2>
+        <table class="fl-table">
+            <thead>
+            <tr>
+                <th>Product Name</th>
+                <th>Ordered Quantity</th>
+                <th>Locations</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="fullfilledOrder : ${fullfilledOrders}">
+                <td th:text="${products.get(fullfilledOrder.getOrder().getProductId()-1).getName()}"></td>
+                <td th:text="${fullfilledOrder.getOrder().getAmount()}"></td>
+                <td th:text="${fullfilledOrder.locationAliases()}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
 </div>
 </body>
 </html>

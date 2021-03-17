@@ -4,6 +4,7 @@ import com.interviewee.OrderFullfillmentOptimizer.model.Location;
 import com.interviewee.OrderFullfillmentOptimizer.payload.request.Order;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -16,7 +17,19 @@ public class FullfilledOrder {
 
     private Order order;
 
-    private List<Location> location;
+    private List<Location> locations;
+
+    public List<String> locationAliases() {
+
+        List<String> aliases = new ArrayList<>();
+
+        for (Location loc : locations) {
+
+            aliases.add(loc.getAlias());
+        }
+
+        return aliases;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -26,12 +39,12 @@ public class FullfilledOrder {
         if (o == null || getClass() != o.getClass())
             return false;
         FullfilledOrder that = (FullfilledOrder) o;
-        return Objects.equals(order, that.order) && Objects.equals(location, that.location);
+        return Objects.equals(order, that.order) && Objects.equals(locations, that.locations);
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(order, location);
+        return Objects.hash(order, locations);
     }
 }
