@@ -2,6 +2,7 @@ package com.interviewee.OrderFullfillmentOptimizer.service;
 
 import com.interviewee.OrderFullfillmentOptimizer.exception.NotEnoughStockException;
 import com.interviewee.OrderFullfillmentOptimizer.model.Location;
+import com.interviewee.OrderFullfillmentOptimizer.model.OptimumLocationComparator;
 import com.interviewee.OrderFullfillmentOptimizer.model.Product;
 import com.interviewee.OrderFullfillmentOptimizer.model.Stock;
 import com.interviewee.OrderFullfillmentOptimizer.payload.request.Order;
@@ -33,6 +34,8 @@ public class OrderService {
 
         orders.removeIf(e -> e.getAmount() == 0);
 
+        // Prepare needed info for optimal fulfillment.
+
         // List of Stocks that can fulfill the order by themselves for optimization.
         List<List<Stock>> singleFullfillStocksPerOrder = new ArrayList<>();
         // List of hashset of locations that the above list of stocks contains.
@@ -57,10 +60,11 @@ public class OrderService {
             singleFullfillLocationsPerOrder.add(singleFullfillLocations);
         }
 
-        List<FullfilledOrder> fullfilledOrders = fullfillOrdersOptimally(orders, singleFullfillStocksPerOrder,
+        // Used the gathered info to fulfill orders.
+        List<FullfilledOrder> fulfilledOrders = fullfillOrdersOptimally(orders, singleFullfillStocksPerOrder,
                 singleFullfillLocationsPerOrder);
 
-        return fullfilledOrders;
+        return fulfilledOrders;
 
     }
 
@@ -116,8 +120,9 @@ public class OrderService {
         }
 
         ArrayList<Location> locations = new ArrayList<>(locationFrequency.keySet());
+        OptimumLocationComparator comparator = new OptimumLocationComparator(locationFrequency);
         List<Location> locationsOrderedByFrequency = locations.stream()
-                .sorted(Comparator.comparing(locationFrequency::get).reversed())
+                .sorted(comparator.reversed())
                 .collect(Collectors.toList());
 
         return locationsOrderedByFrequency;

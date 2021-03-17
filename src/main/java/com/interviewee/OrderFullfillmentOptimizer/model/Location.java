@@ -27,6 +27,18 @@ public class Location extends BaseEntity {
         this.alias = alias;
     }
 
+    public Long getAllStocksSum() {
+
+        Long sum = 0L;
+
+        for (Stock stock : stocks) {
+
+            sum += stock.getAmount();
+        }
+
+        return sum;
+    }
+
     public String getStockAvailability() {
 
         String result = "";

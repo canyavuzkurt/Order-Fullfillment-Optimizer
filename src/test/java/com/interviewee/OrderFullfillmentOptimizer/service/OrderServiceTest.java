@@ -45,7 +45,7 @@ class OrderServiceTest {
         Product product2 = new Product("test2");
         product2.setId(1L);
         Product product3 = new Product("test3");
-        product2.setId(2L);
+        product3.setId(2L);
 
         Location location1 = new Location("loc1");
         Location location2 = new Location("loc2");
@@ -83,7 +83,7 @@ class OrderServiceTest {
         Product product2 = new Product("test2");
         product2.setId(1L);
         Product product3 = new Product("test3");
-        product2.setId(2L);
+        product3.setId(2L);
 
         Location location1 = new Location("loc1");
         Location location2 = new Location("loc2");
@@ -161,7 +161,7 @@ class OrderServiceTest {
         Product product2 = new Product("test2");
         product2.setId(1L);
         Product product3 = new Product("test3");
-        product2.setId(2L);
+        product3.setId(2L);
 
         Location location1 = new Location("loc1");
         Location location2 = new Location("loc2");
@@ -202,7 +202,7 @@ class OrderServiceTest {
         Product product2 = new Product("test2");
         product2.setId(1L);
         Product product3 = new Product("test3");
-        product2.setId(2L);
+        product3.setId(2L);
 
         Location location1 = new Location("loc1");
         Location location2 = new Location("loc2");
@@ -228,6 +228,7 @@ class OrderServiceTest {
         FullfilledOrder result2 = new FullfilledOrder(order2, Arrays.asList(location1));
 
         given(productService.findById(0L)).willReturn(product1);
+        given(productService.findById(2L)).willReturn(product3);
 
         List<FullfilledOrder> expected = Arrays.asList(result1, result2);
 
